@@ -9,10 +9,13 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-***Group Member 1:***
-***Group Member 2:***
-***Group Member 3:***
+**Group Member 1: Chean Shea**
 
+**Group Member 2: Mayowa Idowu**
+
+**Group Member 3: Milan Stefanelli**
+
+**Group Member 4: Kiersten Kochanowski**
 
 # Empirical Analysis using Data from Washington (2008, AER)
 
@@ -20,15 +23,11 @@ knitr::opts_chunk$set(echo = TRUE)
 This exercise uses data from Ebonya Washington's paper, "Female Socialization: How Daughters Affect their Legislator Father's voting on Women's Issues," published in the *American Economic Review* in 2008. This paper studies whether having a daughter affects legislator's voting on women's issues. 
 
 
-
 # Finding the data
 
 The data can be found by following the link on the AER's website which will take you to the ICPSR's data repository. You will need to sign in to get access to the data files. Once logged in, you will find the set of files that are typically included in a replication file. These include several datasets, several .do files (which is a STATA command file), and text files with the data descriptions which tell you about the different variables included in the dataset. For this assignment we will be using the `basic.dta` file.
 
-
 Download it and save it in a `data' folder located in the same folder as your project repository. Since some datasets in this course will be big, we want to avoid keeping the data on github so I would recommend not placing the data in the project repository itself. 
-
-
 
 # Set up and opening the data
 
@@ -38,12 +37,17 @@ Other packages you will need: `dplyr`, `stargazer` and `lfe`.
 
 Remember, if you have not used a package before you will need to install the package as follows
 
+Setting personal working directory
+```{r}
+getwd()
+```
+
 ```{r packages}
 
-#install.packages('haven',repos = "http://cran.us.r-project.org")
-#install.packages("dplyr",repos = "http://cran.us.r-project.org")
-#install.packages("stargazer",repos = "http://cran.us.r-project.org")
-#install.packages("lfe",repos = "http://cran.us.r-project.org")
+install.packages('haven',repos = "http://cran.us.r-project.org")
+install.packages("dplyr",repos = "http://cran.us.r-project.org")
+install.packages("stargazer",repos = "http://cran.us.r-project.org")
+install.packages("lfe",repos = "http://cran.us.r-project.org")
 
 ```
 Hint: Once you have run these once, on your machine, you may want to comment them out with a # so that your code runs faster.
@@ -51,14 +55,25 @@ Hint: Once you have run these once, on your machine, you may want to comment the
 This .Rmd file will be opened on different computers. But you don't want to have to change the filepaths each time you pull a new version off of GitHub. Because of this, I would recommend you avoid using any computer specific filepaths in your code. Instead, make sure you and your groupmates structure your project folders in the same way and only specify filepaths within your project folder. R uses the folder where you are saving your code as it's default "working directory" (where things will be saved or be searched for unless specified otherwise). You can move up to the parent folder by using `..` in the file path. Thus, if your data is not saved in the forked github repository but is saved in a folder called `data` next to it you can call your data with the following file path: `"../data/basic.dta"`.
 
 
- 
-
 ## Question: Now that the packages are installed, call all your packages and load your data. How many observations are in the original dataset?
 
 **Code and Answer:**
 
+Calling packages
+```{r include=FALSE}
+library(haven)
+library(dplyr)
+library(stargazer)
+library(lfe)
+```
 
-
+Loading data
+```{r}
+setwd("c:/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stefanelli")
+basic.data <- read_dta("/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stefanelli/Data/basic.dta")
+View(basic.data)
+summary(basic.data)
+```
 
 
 # Cleaning the data
