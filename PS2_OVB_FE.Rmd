@@ -19,6 +19,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Empirical Analysis using Data from Washington (2008, AER)
 
+```{r}
+getwd()
+```
+
 
 This exercise uses data from Ebonya Washington's paper, "Female Socialization: How Daughters Affect their Legislator Father's voting on Women's Issues," published in the *American Economic Review* in 2008. This paper studies whether having a daughter affects legislator's voting on women's issues. 
 
@@ -55,7 +59,7 @@ Hint: Once you have run these once, on your machine, you may want to comment the
 This .Rmd file will be opened on different computers. But you don't want to have to change the filepaths each time you pull a new version off of GitHub. Because of this, I would recommend you avoid using any computer specific filepaths in your code. Instead, make sure you and your groupmates structure your project folders in the same way and only specify filepaths within your project folder. R uses the folder where you are saving your code as it's default "working directory" (where things will be saved or be searched for unless specified otherwise). You can move up to the parent folder by using `..` in the file path. Thus, if your data is not saved in the forked github repository but is saved in a folder called `data` next to it you can call your data with the following file path: `"../data/basic.dta"`.
 
 
-## Question: Now that the packages are installed, call all your packages and load your data. How many observations are in the original dataset?
+## Question 1: Now that the packages are installed, call all your packages and load your data. How many observations are in the original dataset?
 
 **Code and Answer:**
 1740 observations
@@ -79,17 +83,17 @@ summary(basic.data)
 
 # Cleaning the data
 
-## Question: The original dataset contains data from the 105th to 108th U.S. Congress. We only use the observations from the 105th congress. Refer to the data documentation to find the relevant variable and then use the `filter` function in the `dplyr` package to extract observations from the 105th congress.
+## Question 2: The original dataset contains data from the 105th to 108th U.S. Congress. We only use the observations from the 105th congress. Refer to the data documentation to find the relevant variable and then use the `filter` function in the `dplyr` package to extract observations from the 105th congress.
 
 **Code:**
 
 ```{r}
-
+congress105_data <- filter(basic.data, congress == "105")
+View(congress105_data)
 ```
 
 
-
-## Question:The dataset contains many variables, some of which are not used in this exercise. Keep the following variables in the final dataset (Hint: use the `select` function in `dplyr`). 
+## Question 3: The dataset contains many variables, some of which are not used in this exercise. Keep the following variables in the final dataset (Hint: use the `select` function in `dplyr`). 
 
 | Name     |Description                                                             |
 |----------|------------------------------------------------------------------------|
@@ -118,40 +122,51 @@ summary(basic.data)
 
 **Code:**
 
+```{r}
+data.final <- select(congress105_data, aauw, totchi, ngirls, party, female, white, srvlng, age, demvote, medinc, perf, perw, perhs, percol, perur, moredef, statabb, district, rgroup, region)
+View(data.final)
+```
 
 
-
-## Question: Make sure your final dataset is a data frame. You can check your data's format with the command `is`. If the first element of the returned vector is not "data.frame", convert your dataset with the function `as.data.frame`. 
+## Question 4: Make sure your final dataset is a data frame. You can check your data's format with the command `is`. If the first element of the returned vector is not "data.frame", convert your dataset with the function `as.data.frame`. 
 
 **Code:**
-
-
-
+```{r}
+is(data.final)
+```
 
 
 #  Summary Statistics
 
-## Question: Report summary statistics of the following variables in the dataset: political party, age, race, gender, AAUW score, the number of children, and the number of daughters. Present these summary statistics in a formatted table, you can use `stargazer` or other packages. Make this table as communicative as possible.
+## Question 5: Report summary statistics of the following variables in the dataset: political party, age, race, gender, AAUW score, the number of children, and the number of daughters. Present these summary statistics in a formatted table, you can use `stargazer` or other packages. Make this table as communicative as possible.
 
 Hints: If you want RMarkdown to display your outputted table, include the code `results = "asis"` in the chunk header. This is true for all chunks that output a formatted table. In the stargazer command, you will want to specify the format of the table by including the code `results="html"` for html output or `results="latex"` for a pdf output.
 
 **Code:**
 
-
+```{r results='asis'}
+library(stargazer)
+stargazer(data.final, results="html")
+```
 
 
 #  Generate Variables
 
-## Question:Construct a variable called $repub_i$, a binary set to 1 if the observation is for a republican.
+## Question 6:Construct a variable called $repub_i$, a binary set to 1 if the observation is for a republican.
 
 **Code:**
 
-
+```{r}
+as.factor(data.final$party)
+data.final$repub_i <- ifelse(complete.data$party == '2', 1, 0)
+data.final$dem_i <- ifelse(complete.data$party == '1', 1, 0)
+data.final$indep_i <- ifelse(complete.data$party == '3', 1, 0)
+```
 
 
 # Run Estimations
 
-## Question: Estimate the following linear regression models using the `felm` command (part of the lfe package). Report your regression results in a formatted table using a package such as `stargazer`. Report robust standard errors in your table (Hint: in stargazer specify `se = list(model1$rse, model2$rse, model3$rse)`). Make this table as informative as possible by adding needed information and removing superfluous information.
+## Question 7: Estimate the following linear regression models using the `felm` command (part of the lfe package). Report your regression results in a formatted table using a package such as `stargazer`. Report robust standard errors in your table (Hint: in stargazer specify `se = list(model1$rse, model2$rse, model3$rse)`). Make this table as informative as possible by adding needed information and removing superfluous information.
 
 
 $$
@@ -162,27 +177,31 @@ $$
 \end{aligned}
 $$
 
-
 **Code:**
 
+```{r}
+
+```
 
 
 
 
-## Question: Compare the OLS estimates of $\beta_1$ across the above three specifications. Discuss what explains the difference (if any) of the estimate across three specifications? Which control variable is particularly important and why?
+
+
+## Question 8: Compare the OLS estimates of $\beta_1$ across the above three specifications. Discuss what explains the difference (if any) of the estimate across three specifications? Which control variable is particularly important and why?
 
 **Answer and Code:**
 
 
 
 
-## Question: Consider the third specification (with 3 controls in addition to $ngirls_i$. Conditional on the number of children and other variables, do you think $ngirls_i$ is plausibly exogenous? What is the identifying assumption necessary for $\beta_1$ to be interpreted as a causal estimate? What evidence does Washington give to support this assumption?
+## Question 9: Consider the third specification (with 3 controls in addition to $ngirls_i$. Conditional on the number of children and other variables, do you think $ngirls_i$ is plausibly exogenous? What is the identifying assumption necessary for $\beta_1$ to be interpreted as a causal estimate? What evidence does Washington give to support this assumption?
 
 **Answer:**
 
 
 
-## Question: It is possible that the effects of having daughters might be different for female and male legislators. Estimate four different models to think about this question: the equivalent of model 3 separately on men and women, model 3 with a single interaction term added, and model 3 with three interaction terms added. Present your results in a table. Is there evidence that the effect of a daughter differs for male and female legislators? Of the four models you estimated, which are equivalent, which are different, and why? 
+## Question 10: It is possible that the effects of having daughters might be different for female and male legislators. Estimate four different models to think about this question: the equivalent of model 3 separately on men and women, model 3 with a single interaction term added, and model 3 with three interaction terms added. Present your results in a table. Is there evidence that the effect of a daughter differs for male and female legislators? Of the four models you estimated, which are equivalent, which are different, and why? 
 
 
 **Code and Answer:**
@@ -192,7 +211,7 @@ $$
 # Fixed Effects:
 
 
-## Question: Equation 1 from Washington's paper is a little bit different from the equations you have estimated so far. Estimate the three models specified below (where $\gamma_i$ is a fixed effect for the number of children). Present your results in a table and explain the difference between the three models.
+## Question 11: Equation 1 from Washington's paper is a little bit different from the equations you have estimated so far. Estimate the three models specified below (where $\gamma_i$ is a fixed effect for the number of children). Present your results in a table and explain the difference between the three models.
 
 $$
 \begin{aligned}
@@ -208,18 +227,18 @@ Hint: you will need to generate the dummy variables for the second equation or c
 
 
 
-## Question: Reproduce the results in column 2 of table 2 from Washington's paper. 
+## Question 12: Reproduce the results in column 2 of table 2 from Washington's paper. 
 
 **Code:**
 
 
-## Question: Explain what the region fixed effects are controlling for?
+## Question 13: Explain what the region fixed effects are controlling for?
 
 **Answer:** 
 
 
 
-## Question: Reload the data and this time we will keep observations from all of the congresses. Generate a variable that creates a unique identifier for region by year. Estimate the following models and present your results in a table.
+## Question 14: Reload the data and this time we will keep observations from all of the congresses. Generate a variable that creates a unique identifier for region by year. Estimate the following models and present your results in a table.
 
 
 $$
@@ -237,12 +256,12 @@ $$
 
 
 
-## Question: In her paper, Washington chooses not to pool the data for all four congresses and instead estimates her main specification on each year separately. Why do you think she makes this choice? 
+## Question 14: In her paper, Washington chooses not to pool the data for all four congresses and instead estimates her main specification on each year separately. Why do you think she makes this choice? 
 
 **Answer:** 
 
 
-## Question: Check to see that names uniquely identify each congress person. If you are not sure if they do, make a unique identifier for each congress person.
+## Question 15: Check to see that names uniquely identify each congress person. If you are not sure if they do, make a unique identifier for each congress person.
 
 
 **Answer and Code:**
@@ -250,7 +269,7 @@ $$
 
 
 
-## Question:Because we have data for four congress sessions, we may be able to see how an individual congress person's voting patterns change as the number of daughters they have changes. Propose an estimating equation that would allow you to estimate this, run your estimation and present your results. Be sure to define all new variables. What do your results tell you? Why?
+## Question 16:Because we have data for four congress sessions, we may be able to see how an individual congress person's voting patterns change as the number of daughters they have changes. Propose an estimating equation that would allow you to estimate this, run your estimation and present your results. Be sure to define all new variables. What do your results tell you? Why?
 
 
 **Answer and Code:**
@@ -258,12 +277,12 @@ $$
 
 
 
-## Question: Can you think of any identification concerns with this approach?
+## Question 17: Can you think of any identification concerns with this approach?
 
 **Answer:** 
 
 
-## Question: Using data from all four congresses, estimate the same specification as that used in column 2 of table 2 with the addition of year and individual fixed effects and report your results. Why aren't you able to estimate a coefficient for certain covariates?
+## Question 18: Using data from all four congresses, estimate the same specification as that used in column 2 of table 2 with the addition of year and individual fixed effects and report your results. Why aren't you able to estimate a coefficient for certain covariates?
 
 **Code:**
 
@@ -271,12 +290,12 @@ $$
 **Answer:** 
 
 
-## Question: Which fixed effects from the original specification are now redundant?
+## Question 19: Which fixed effects from the original specification are now redundant?
 
 **Answer:**
 
 
-## Question: Can you estimate a coefficient for $Repub$? What does this imply?
+## Question 20: Can you estimate a coefficient for $Repub$? What does this imply?
 
 **Answer:**
 
