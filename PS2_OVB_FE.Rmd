@@ -146,7 +146,7 @@ Hints: If you want RMarkdown to display your outputted table, include the code `
 
 ```{r results='asis'}
 library(stargazer)
-stargazer(data.final, results="html")
+stargazer(data.final, summary = TRUE, results="html")
 ```
 
 
@@ -180,12 +180,17 @@ $$
 **Code:**
 
 ```{r}
-
+r1 <- felm(data=data.final, aauw ~ ngirls)
+r2 <- felm(data=data.final, aauw ~ ngirls + totchi)
+r3 <- felm(data=data.final, aauw ~ ngirls + totchi + female + repub_i)
 ```
 
-
-
-
+```{r}
+stargazer(r1, r2, r3, type="text", header=FALSE, title="Comparison of Regressions", 
+                     style="qje", 
+                     column.labels = c("Model #1", "Model #2", "Model #3"),
+                     covariate.labels = c("# of Daughters", "# of Children", "Female Congress Person", "Republican", "Intercept"))
+```
 
 
 ## Question 8: Compare the OLS estimates of $\beta_1$ across the above three specifications. Discuss what explains the difference (if any) of the estimate across three specifications? Which control variable is particularly important and why?
