@@ -58,6 +58,7 @@ This .Rmd file will be opened on different computers. But you don't want to have
 ## Question: Now that the packages are installed, call all your packages and load your data. How many observations are in the original dataset?
 
 **Code and Answer:**
+1740 observations
 
 Calling packages
 ```{r include=FALSE}
@@ -82,6 +83,9 @@ summary(basic.data)
 
 **Code:**
 
+```{r}
+
+```
 
 
 
