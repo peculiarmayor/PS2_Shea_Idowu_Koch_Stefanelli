@@ -188,6 +188,7 @@ r3 <- felm(data=data.final, aauw ~ ngirls + totchi + female + repub_i)
 ```{r}
 stargazer(r1, r2, r3, type="text", header=FALSE, title="Comparison of Regressions", 
                      style="qje", 
+                     se = list(r1$rse, r2$rse, r3$rse),
                      column.labels = c("Model #1", "Model #2", "Model #3"),
                      covariate.labels = c("# of Daughters", "# of Children", "Female Congress Person", "Republican", "Intercept"))
 ```
@@ -211,7 +212,30 @@ stargazer(r1, r2, r3, type="text", header=FALSE, title="Comparison of Regression
 
 **Code and Answer:**
 
+```{r}
+#model 3 separately on men and women
+data.final.f <- filter(data.final, female == "1")
+data.final.m <- filter(data.final, female == "0")
+  
+r_fem <- felm(data=data.final.f, aauw ~ ngirls + totchi + repub_i)
+r_mal <- felm(data=data.final.m, aauw ~ ngirls + totchi + repub_i)
 
+
+#model 3 with a single interaction term added
+r_1int <- felm(data=data.final, aauw ~ ngirls + totchi + repub_i + female + ngirls*female)
+
+
+#model 3 with three interaction terms added. 
+
+
+#model summaries
+stargazer(r_fem, r_mal, r_1int, type="text", header=FALSE, title="Comparison of Regressions", 
+                     style="qje", 
+                     se = list(r_fem$rse, r_mal$rse, r_1int$rse),
+                     column.labels = c("Model #4", "Model #5", "Model #6"),
+                     covariate.labels = c("# of Daughters", "# of Children", "Republican", "Female Congress Person", "# Girls::Female Congress Person", "Intercept"))
+
+```
 
 # Fixed Effects:
 
@@ -226,7 +250,38 @@ $$
 \end{aligned}
 $$
 
-Hint: you will need to generate the dummy variables for the second equation or code it as `factor()`. For the third equation, the `felm` function allows you to specify fixed effects. 
+
+Hint: you will need to generate the dummy variables for the second equation or code it as `factor()`. For the third equation, the `felm` function allows you to specify fixed effects.
+
+```{r}
+# creating total children dummy variables
+library(fastDummies)
+as.factor(data.final$totchi)
+data.final <- fastDummies::dummy_cols(data.final, select_columns = "totchi")
+```
+
+
+```{r}
+#Model 1 listed for this question is R2 from previous question, will carry into this comparison instead
+
+#Model #7 (with dummies)
+r7 <- felm(data=data.final, aauw ~ ngirls + totchi_1 + totchi_2 + totchi_3 + totchi_4 + totchi_5 + totchi_6 + totchi_7 + totchi_9 + totchi_10)
+
+#Model #8 (year fixed effect)
+data.final_fe <- select(congress105_data, aauw, year, totchi, ngirls, party, female, white, srvlng, age, demvote, medinc, perf, perw, perhs, percol, perur, moredef, statabb, district, rgroup, region)
+View(data.final_fe)
+r8 <- felm(data=data.final_fe, aauw ~ ngirls|year)
+
+#Model summaries
+stargazer(r2, R7, R8, type="text", header=FALSE, title="Comparison of Regressions", 
+                     style="qje", 
+                     se = list(r2$rse, R7$rse, R8$rse),
+                     column.labels = c("Model #2", "Model #7", "Model #8"),
+                     covariate.labels = c("# of Daughters", "# of Children", "1 Child", "2 Children", "3 Children", "4 Children", "5 Children", "6 Children", "7 Children", "8 Children", "9 Children", "10 Children", "Intercept"))
+
+
+```
+
 
 **Code and Answer:**
 
@@ -261,12 +316,12 @@ $$
 
 
 
-## Question 14: In her paper, Washington chooses not to pool the data for all four congresses and instead estimates her main specification on each year separately. Why do you think she makes this choice? 
+## Question 15: In her paper, Washington chooses not to pool the data for all four congresses and instead estimates her main specification on each year separately. Why do you think she makes this choice? 
 
 **Answer:** 
 
 
-## Question 15: Check to see that names uniquely identify each congress person. If you are not sure if they do, make a unique identifier for each congress person.
+## Question 16: Check to see that names uniquely identify each congress person. If you are not sure if they do, make a unique identifier for each congress person.
 
 
 **Answer and Code:**
@@ -274,7 +329,7 @@ $$
 
 
 
-## Question 16:Because we have data for four congress sessions, we may be able to see how an individual congress person's voting patterns change as the number of daughters they have changes. Propose an estimating equation that would allow you to estimate this, run your estimation and present your results. Be sure to define all new variables. What do your results tell you? Why?
+## Question 17:Because we have data for four congress sessions, we may be able to see how an individual congress person's voting patterns change as the number of daughters they have changes. Propose an estimating equation that would allow you to estimate this, run your estimation and present your results. Be sure to define all new variables. What do your results tell you? Why?
 
 
 **Answer and Code:**
@@ -282,12 +337,12 @@ $$
 
 
 
-## Question 17: Can you think of any identification concerns with this approach?
+## Question 18: Can you think of any identification concerns with this approach?
 
 **Answer:** 
 
 
-## Question 18: Using data from all four congresses, estimate the same specification as that used in column 2 of table 2 with the addition of year and individual fixed effects and report your results. Why aren't you able to estimate a coefficient for certain covariates?
+## Question 19: Using data from all four congresses, estimate the same specification as that used in column 2 of table 2 with the addition of year and individual fixed effects and report your results. Why aren't you able to estimate a coefficient for certain covariates?
 
 **Code:**
 
@@ -295,12 +350,12 @@ $$
 **Answer:** 
 
 
-## Question 19: Which fixed effects from the original specification are now redundant?
+## Question 20: Which fixed effects from the original specification are now redundant?
 
 **Answer:**
 
 
-## Question 20: Can you estimate a coefficient for $Repub$? What does this imply?
+## Question 21: Can you estimate a coefficient for $Repub$? What does this imply?
 
 **Answer:**
 
