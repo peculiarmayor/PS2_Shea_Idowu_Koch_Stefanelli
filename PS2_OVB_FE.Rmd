@@ -158,9 +158,9 @@ stargazer(data.final, summary = TRUE, results="html")
 
 ```{r}
 as.factor(data.final$party)
-data.final$repub_i <- ifelse(complete.data$party == '2', 1, 0)
-data.final$dem_i <- ifelse(complete.data$party == '1', 1, 0)
-data.final$indep_i <- ifelse(complete.data$party == '3', 1, 0)
+data.final$repub_i <- ifelse(data.final$party == '2', 1, 0)
+data.final$dem_i <- ifelse(data.final$party == '1', 1, 0)
+data.final$indep_i <- ifelse(data.final$party == '3', 1, 0)
 ```
 
 
@@ -273,9 +273,9 @@ View(data.final_fe)
 r8 <- felm(data=data.final_fe, aauw ~ ngirls|year)
 
 #Model summaries
-stargazer(r2, R7, R8, type="text", header=FALSE, title="Comparison of Regressions", 
+stargazer(r2, r7, r8, type="text", header=FALSE, title="Comparison of Regressions", 
                      style="qje", 
-                     se = list(r2$rse, R7$rse, R8$rse),
+                     se = list(r2$rse, r7$rse, r8$rse),
                      column.labels = c("Model #2", "Model #7", "Model #8"),
                      covariate.labels = c("# of Daughters", "# of Children", "1 Child", "2 Children", "3 Children", "4 Children", "5 Children", "6 Children", "7 Children", "8 Children", "9 Children", "10 Children", "Intercept"))
 
@@ -290,6 +290,13 @@ stargazer(r2, R7, R8, type="text", header=FALSE, title="Comparison of Regression
 ## Question 12: Reproduce the results in column 2 of table 2 from Washington's paper. 
 
 **Code:**
+Reproducing the following regression: 
+
+AAUW = ngirls + female + white + republican + age + agesqrd + servicelength + servicelengthsqrd + noreligion + Catholic + OtherChristian + Otherrel + DemVoteShare 
+```{r}
+
+```
+
 
 
 ## Question 13: Explain what the region fixed effects are controlling for?
