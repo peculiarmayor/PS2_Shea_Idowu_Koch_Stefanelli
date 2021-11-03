@@ -23,7 +23,6 @@ knitr::opts_chunk$set(echo = TRUE)
 getwd()
 ```
 
-
 This exercise uses data from Ebonya Washington's paper, "Female Socialization: How Daughters Affect their Legislator Father's voting on Women's Issues," published in the *American Economic Review* in 2008. This paper studies whether having a daughter affects legislator's voting on women's issues. 
 
 
@@ -201,6 +200,9 @@ stargazer(r1, r2, r3, type="text", header=FALSE, title="Comparison of Regression
 
 **Answer and Code:**
 
+We can see that the omission of number of children, republican and female significantly impact our B1 coefficient on the relationship between number of daughters and congress people's AAUW score. Model 1 has a negative coefficient which would lead us to assume that a one person increase in the number of a daughters a congress person has would lead to a -2.784 pt decrease in their score on voting on women's issues. This is not what we would expect. Once we introduce the other controls we see a positive B1 coefficient which aligns with our expected relationship After testing the absence of various control variables, we can see that the Republican control when omitted leads to the strongest upward bias on our B1, which makes it the most important to include in our model.
+
+
 Comparing the impact of Female vs Republican Congress Person:
 ```{r}
 rtest1 <- felm(data=data.final, aauw ~ ngirls + totchi + female) 
@@ -212,7 +214,6 @@ stargazer(r1, r2, r3, rtest1, rtest2, type="text", header=FALSE, title="Comparis
                      covariate.labels = c("# of Daughters", "# of Children", "Female Congress Person", "Republican", "Intercept"))
 ```
 
-We can see that the omission of number of children, republican and female significantly impact our B1 coefficient on the relationship between number of daughters and congress people's AAUW score. Model 1 has a negative coefficient which would lead us to assume that a one person increase in the number of a daughters a congress person has would lead to a -2.784 pt decrease in their score on voting on women's issues. This is not what we would expect. Once we introduce the other controls we see a positive B1 coefficient which aligns with our expected relationship After testing the absence of various control variables, we can see that the Republican control when omitted leads to the strongest upward bias on our B1, which makes it the most important to include in our model.
 
 
 
@@ -232,20 +233,20 @@ We can see that the omission of number of children, republican and female signif
 data.final.f <- filter(data.final, female == "1")
 data.final.m <- filter(data.final, female == "0")
   
-r_fem <- felm(data=data.final.f, aauw ~ ngirls + totchi + repub_i)
-r_mal <- felm(data=data.final.m, aauw ~ ngirls + totchi + repub_i)
+r4_fem <- felm(data=data.final.f, aauw ~ ngirls + totchi + repub_i)
+r5_mal <- felm(data=data.final.m, aauw ~ ngirls + totchi + repub_i)
 
 
 #model 3 with a single interaction term added
-r_1int <- felm(data=data.final, aauw ~ ngirls + totchi + repub_i + female + ngirls*female)
+r6_1int <- felm(data=data.final, aauw ~ ngirls + totchi + repub_i + female + ngirls*female)
 
 
 #model 3 with three interaction terms added. 
-r_3int <- felm(data=data.final, aauw ~ ngirls + totchi + repub_i + female + ngirls*female + ngirls*totchi + ngirls*repub_i)
+r7_3int <- felm(data=data.final, aauw ~ ngirls + totchi + repub_i + female + ngirls*female + ngirls*totchi + ngirls*repub_i)
 
 
 #model summaries
-stargazer(r_fem, r_mal, r_1int, r_3int, type="text", header=FALSE, title="Comparison of Regressions", 
+stargazer(r4_fem, r5_mal, r6_1int, r7_3int, type="text", header=FALSE, title="Comparison of Regressions", 
                      style="qje", 
                      se = list(r_fem$rse, r_mal$rse, r_1int$rse, r_3int$rse),
                      column.labels = c("Model #4", "Model #5", "Model #6", "Model #7"),
@@ -297,21 +298,18 @@ data.final$totchi_10 <- ifelse(data.final$totchi == '10', 1, 0)
 #Model 1 listed for this question is R2 from previous question, will carry into this comparison instead
 #r2 <- felm(data=data.final, aauw ~ ngirls + totchi)
 
-#Model #7 (with dummies)
+#Model #7 (with total children dummies)
 r8 <- felm(data=data.final, aauw ~ ngirls + totchi_1 + totchi_2 + totchi_3 + totchi_4 + totchi_5 + totchi_6 + totchi_7 + totchi_9 + totchi_10)
 #excludes 0 total children dummy variable
 
-#Model #8 (year fixed effect)
-#adding year variable
-data.final_fe <- select(congress105_data, aauw, year, totchi, ngirls, party, female, white, srvlng, age, demvote, medinc, perf, perw, perhs, percol, perur, moredef, statabb, district, rgroup, region)
-View(data.final_fe)
-r9 <- felm(data=data.final_fe, aauw ~ ngirls|totchi)
+#Model #8 (total children fixed effect)
+r9 <- felm(data=data.final, aauw ~ ngirls|totchi)
 
 #Model summaries
 stargazer(r2, r8, r9, type="text", header=FALSE, title="Comparison of Regressions", 
                      style="qje", 
                      se = list(r2$rse, r7$rse, r8$rse),
-                     column.labels = c("Model #2", "Model #7", "Model #8"),
+                     column.labels = c("Model #2", "Model #8", "Model #9"),
                      covariate.labels = c("# of Daughters", "# of Children", "1 Child", "2 Children", "3 Children", "4 Children", "5 Children", "6 Children", "7 Children", "8 Children", "9 Children", "10 Children", "Constant"))
 
 
@@ -347,16 +345,15 @@ data.final <- fastDummies::dummy_cols(data.final, select_columns = "region", ign
 
 Reproducing the following regression: 
 
-AAUW = ngirls + female + white + republican + age + agesqrd + servicelength + servicelengthsqrd + noreligion + Catholic + OtherChristian + Otherrel + DemVoteShare 
+AAUW = ngirls + female + white + republican + age + agesqrd + servicelength + servicelengthsqrd + noreligion + Catholic + OtherChristian + Otherrel + DemVoteShare with total children and region fixed effects
 
 ```{r}
-View(data.final)
-r10 <- felm(data=data.final, aauw ~ ngirls + female + white + repub_i + age + agesqrd + srvlng + srvlngsqrd + rel.none + rel.cath_orth + rel.othchris + rel.jew + demvote + totchi_0 + totchi_1 + totchi_2 + totchi_3 + totchi_4 + totchi_5 + totchi_6 + totchi_7 + totchi_9 + totchi_10 + region_1 + region_2 + region_3 + region_4 + region_5 + region_6 + region_7 + region_8 + region_9)
+r10 <- felm(data=data.final, aauw ~ ngirls + female + white + repub_i + age + agesqrd + srvlng + srvlngsqrd + rel.none + rel.cath_orth + rel.othchris + rel.jew + demvote| totchi + region)
 
 stargazer(r10, type="text", header=FALSE, title="Impact of Female Children on Legislator Voting on Women's Issues", 
                      style="qje", 
                      se = list(r10$rse),
-                     omit = c("totchi_0","totchi_1", "totchi_2", "totchi_3", "totchi_4", "totchi_5", "totchi_6", "totchi_7", "totchi_9", "totchi_10", "region_1", "region_2", "region_3", "region_4", "region_5", "region_6", "region_7", "region_8", "region_9", "Constant"))
+                     covariate.labels = c("# of Daughters", "Female", "White", "Republican", "Age", "Age Squared", "Service Length", "Service Length Squared", "Not Religious", "Catholic/Orthodox", "Other Christian", "Other Religion", "Democratic Vote Share"))
 
 ```
 
@@ -414,23 +411,29 @@ library(plm)
 Running the models
 ```{r}
 #**Model 1 with total children & region fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\gamma_i+\phi_i+\epsilon_i\\ 
-r11 <- felm(data=basic.data, aauw ~ ngirls + factor(totchi) + factor(region))
+r11 <- felm(data=basic.data, aauw ~ ngirls|factor(totchi) + factor(region))
 
 #**Model 2 with total children, region, and year fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\gamma_i+\phi_i+\eta_i+\epsilon_i\\ 
-r12 <- felm(data=basic.data, aauw ~ ngirls + factor(totchi) + factor(region) + factor(year))
+r12 <- felm(data=basic.data, aauw ~ ngirls |factor(totchi) + factor(region) + factor(year))
 
 #**Model 3 with total children & region by year fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\gamma_i+\theta_i+\epsilon_i\\ 
 #using plm model which allows for easier "within estimators" when using panel data
 r13 <- plm(data=basic.data, aauw ~ ngirls + factor(totchi) + factor(region), index = "year", model="within")
 
-#**Model 4 with total children by region by year fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\rho_i+\epsilon_i\\
-r14 <- plm(data=basic.data, aauw ~ ngirls + factor(totchi), index = c("region","year"), model="within", effect="twoways")
-
 #Presenting the models
-stargazer(r11, r12, r13, r14, type="text", header=FALSE, title="Impact of Female Children on Legislator Voting on Women's Issues", 
+stargazer(r11, r12, r13, type="text", header=FALSE, title="Impact of Female Children on Legislator Voting on Women's Issues", 
                      style="qje")
 
+
 ```
+
+```{r}
+#**Model 4 with total children by region by year fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\rho_i+\epsilon_i\\
+as.factor(basic.data$region)
+as.factor(basic.data$year)
+r14 <- plm(data=basic.data, aauw ~ ngirls + factor(totchi), index = c("region","year"), model="within")
+```
+
 
 Question: Explain what the differences between these four different estimation. Is there a downside to a specification like the fourth specification? **
 
@@ -438,13 +441,11 @@ These four models control for variation within different control variables like 
 
 The region fixed effects are controlling for any unobservable variation within each region which does not change over time
 
-```
-
-
 
 ## Question 15: In her paper, Washington chooses not to pool the data for all four congresses and instead estimates her main specification on each year separately. Why do you think she makes this choice? 
 
 **Answer:** 
+Since both variables are a representation on the passing of time 
 
 
 ## Question 16: Check to see that names uniquely identify each congress person. If you are not sure if they do, make a unique identifier for each congress person.
@@ -452,15 +453,64 @@ The region fixed effects are controlling for any unobservable variation within e
 
 **Answer and Code:**
 
+```{r}
+#Confident each name is a unique identifier
+  #summary(basic.data)
+  #as.factor(basic.data$name)
+  #levels(basic.data$name)
 
+basic.data <- fastDummies::dummy_cols(basic.data, ignore_na=TRUE, select_columns = "name")
+```
 
 
 ## Question 17:Because we have data for four congress sessions, we may be able to see how an individual congress person's voting patterns change as the number of daughters they have changes. Propose an estimating equation that would allow you to estimate this, run your estimation and present your results. Be sure to define all new variables. What do your results tell you? Why?
 
 
 **Answer and Code:**
+$$
+\begin{aligned}
+    aauw_i&=\beta_0+\beta_1NumberGirls_{ic}+\beta_2Female+\beta_3Republican+\gamma_{ic}TotalChildren+\phi_cCongress+\eta_iName+\epsilon_i\\
+\end{aligned}
+$$
+Where gamma equals "totchi", phi equals "congress" and eta equals "name"
+
+Creating variables
+```{r}
+as.factor(basic.data$totchi)
+levels(basic.data$totchi)
+
+basic.data$totchi_0 <- ifelse(basic.data$totchi == '0', 1, 0)
+basic.data$totchi_1 <- ifelse(basic.data$totchi == '1', 1, 0)
+basic.data$totchi_2 <- ifelse(basic.data$totchi == '2', 1, 0)
+basic.data$totchi_3 <- ifelse(basic.data$totchi == '3', 1, 0)
+basic.data$totchi_4 <- ifelse(basic.data$totchi == '4', 1, 0)
+basic.data$totchi_5 <- ifelse(basic.data$totchi == '5', 1, 0)
+basic.data$totchi_6 <- ifelse(basic.data$totchi == '6', 1, 0)
+basic.data$totchi_7 <- ifelse(basic.data$totchi == '7', 1, 0)
+basic.data$totchi_8 <- ifelse(basic.data$totchi == '8', 1, 0)
+basic.data$totchi_9 <- ifelse(basic.data$totchi == '9', 1, 0)
+basic.data$totchi_10 <- ifelse(basic.data$totchi == '10', 1, 0)
+basic.data$totchi_11 <- ifelse(basic.data$totchi == '11', 1, 0)
+basic.data$totchi_12 <- ifelse(basic.data$totchi == '12', 1, 0)
+
+as.factor(basic.data$congress)
+
+#Region by Year Dummies
+basic.data$repub_i <- ifelse(basic.data$party == '2', 1, 0)
+basic.data$dem_i <- ifelse(basic.data$party == '1', 1, 0)
+basic.data$indep_i <- ifelse(basic.data$party == '3', 1, 0)
+
+```
 
 
+```{r}
+#Voting patterns as number of daughters changes (controlling for total number of children, time, and congress people)
+
+r15 <- felm(data=basic.data, aauw ~ ngirls + female + repub_i|totchi+congress+name)
+stargazer(r15, type="text", header=FALSE, title="Voting Patterns of Congress People on Women's Issues as Number of Daughters Changes Over time", 
+                     style="qje",
+                     omit = c("totchi_1", "totchi_2", "totchi_3", "totchi_4", "totchi_5", "totchi_6", "totchi_7", "totchi_8", "totchi_9", "totchi_10", "totchi_11", "totchi_12"))
+```
 
 
 ## Question 18: Can you think of any identification concerns with this approach?
@@ -468,9 +518,55 @@ The region fixed effects are controlling for any unobservable variation within e
 **Answer:** 
 
 
+
 ## Question 19: Using data from all four congresses, estimate the same specification as that used in column 2 of table 2 with the addition of year and individual fixed effects and report your results. Why aren't you able to estimate a coefficient for certain covariates?
 
 **Code:**
+Reproducing the following regression for all four congresses with year and indiviudal fixed effects 
+
+AAUW = ngirls + female + white + republican + age + agesqrd + servicelength + servicelengthsqrd + noreligion + Catholic + OtherChristian + Otherrel + DemVoteShare 
+
+```{r}
+#Creating variables
+  as.factor(data.final$party)
+  basic.data$repub_i <- ifelse(basic.data$party == '2', 1, 0)
+  basic.data$dem_i <- ifelse(basic.data$party == '1', 1, 0)
+  basic.data$indep_i <- ifelse(basic.data$party == '3', 1, 0)
+
+  #Age Squared
+  basic.data$agesqrd <- (basic.data$age)^2
+
+  #Service Squared
+  basic.data$srvlngsqrd <- (basic.data$srvlng)^2
+
+  #Religion Dummies
+  levels(basic.data$rgroup)
+  as.factor(basic.data$rgroup)
+  basic.data <- fastDummies::dummy_cols(basic.data, select_columns = "rgroup")
+  
+rename(basic.data, rel.none = rgroup_0, rel.prot = rgroup_1, rel.cath_orth = rgroup_2, rel.othchris = rgroup_3, rel.jew = rgroup_4)
+
+basic.data <- rename(basic.data, rel.none = rgroup_0, rel.prot = rgroup_1, rel.cath_orth = rgroup_2, rel.othchris = rgroup_3, rel.jew = rgroup_4)
+
+basic.data <- subset(basic.data, select = -rgroup_0, -rgroup_1, -rgroup_2, -rgroup_3, -rgroup_4)
+
+#Region Dummies
+as.factor(basic.data$region)
+basic.data <- fastDummies::dummy_cols(basic.data, select_columns = "region", ignore_na = TRUE)
+
+```
+
+```{r}
+#Model
+View(data.final)
+r16 <- felm(data=basic.data, aauw ~ ngirls + female + white + repub_i + age + agesqrd + srvlng + srvlngsqrd + rel.none + rel.cath_orth + rel.othchris + rel.jew + demvote + totchi_0 + totchi_1 + totchi_2 + totchi_3 + totchi_4 + totchi_5 + totchi_6 + totchi_7 + totchi_9 + totchi_10 + totchi_11 + region_1 + region_2 + region_3 + region_4 + region_5 + region_6 + region_7 + region_8 + region_9|year,name)
+
+stargazer(r16, type="text", header=FALSE, title="Impact of Female Children on Legislator Voting on Women's Issues", 
+                     style="qje", 
+                     se = list(r16$rse),
+                     omit = c("totchi_0","totchi_1", "totchi_2", "totchi_3", "totchi_4", "totchi_5", "totchi_6", "totchi_7", "totchi_9", "totchi_10", "totchi_11", "region_1", "region_2", "region_3", "region_4", "region_5", "region_6", "region_7", "region_8", "region_9", "Constant"))
+
+```
 
 
 **Answer:** 
