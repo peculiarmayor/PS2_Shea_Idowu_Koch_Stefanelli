@@ -3,7 +3,8 @@ title: 'Problem Set 2: Omitted Variable Bias and Fixed Effects'
 author: "Claire Duquennois"
 output:
   html_document:
-    number_sections: true
+    number_sections: yes
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -253,7 +254,7 @@ r7_3int <- felm(data=data.final, aauw ~ ngirls + totchi + repub_i + female + ngi
 #model summaries
 stargazer(r4_fem, r5_mal, r6_1int, r7_3int, type="text", header=FALSE, title="Comparison of Regressions", 
                      style="qje", 
-                     se = list(r_fem$rse, r_mal$rse, r_1int$rse, r_3int$rse),
+                     se = list(r4_fem$rse, r5_mal$rse, r6_1int$rse, r7_3int$rse),
                      column.labels = c("Model #4", "Model #5", "Model #6", "Model #7"),
                      covariate.labels = c("# of Daughters", "# of Children", "Republican", "Female Congress Person", "# Girls*Female Congress Person", "# Girls*# of Children", "# of Girls*Republican"))
 
@@ -313,7 +314,7 @@ r9 <- felm(data=data.final, aauw ~ ngirls|totchi)
 #Model summaries
 stargazer(r2, r8, r9, type="text", header=FALSE, title="Comparison of Regressions", 
                      style="qje", 
-                     se = list(r2$rse, r7$rse, r8$rse),
+                     se = list(r2$rse, r8$rse, r9$rse),
                      column.labels = c("Model #2", "Model #8", "Model #9"),
                      covariate.labels = c("# of Daughters", "# of Children", "1 Child", "2 Children", "3 Children", "4 Children", "5 Children", "6 Children", "7 Children", "8 Children", "9 Children", "10 Children", "Constant"))
 
@@ -411,8 +412,8 @@ data.final$indep_i <- ifelse(data.final$party == '3', 1, 0)
 
 Installing plm package to work with panel data
 ```{r}
-install.packages("plm")
-library(plm)
+#install.packages("plm")
+#library(plm)
 ```
 
 Running the models
