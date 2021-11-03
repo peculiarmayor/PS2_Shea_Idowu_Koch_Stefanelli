@@ -307,6 +307,10 @@ rename(data.final, rel.none = rgroup_0, rel.prot = rgroup_1, rel.cath_orth = rgr
 
 data.final <- rename(data.final, rel.none = rgroup_0, rel.prot = rgroup_1, rel.cath_orth = rgroup_2, rel.othchris = rgroup_3, rel.jew = rgroup_4)
 
+#Region Dummies
+as.factor(data.final$region)
+data.final <- fastDummies::dummy_cols(data.final, select_columns = "region")
+
 
 ```
 
@@ -314,19 +318,23 @@ Reproducing the following regression:
 
 AAUW = ngirls + female + white + republican + age + agesqrd + servicelength + servicelengthsqrd + noreligion + Catholic + OtherChristian + Otherrel + DemVoteShare 
 
+FOR TEAM:I get the right coefficients but added all the dummy vars for region (when we should exclude one), not sure what's going on
+
 ```{r}
-r10 <- felm(data=data.final, aauw ~ ngirls + female + white + repub_i + age + agesqrd + srvlng + srvlngsqrd + rel.none + rel.cath_orth + rel.othchris + rel.jew + demvote)
+r10 <- felm(data=data.final, aauw ~ ngirls + female + white + repub_i + age + agesqrd + srvlng + srvlngsqrd + rel.none + rel.cath_orth + rel.othchris + rel.jew + demvote + totchi_0 + totchi_1 + totchi_2 + totchi_3 + totchi_4 + totchi_5 + totchi_6 + totchi_7 + totchi_9 + totchi_10 + region_1 + region_2 + region_3 + region_4 + region_5 + region_6 + region_7 + region_8 + region_9)
 
 stargazer(r10, type="text", header=FALSE, title="Impact of Female Children on Legislator Voting on Women's Issues", 
                      style="qje", 
-                     se = list(r10$rse))
+                     se = list(r10$rse),
+                     omit = c("totchi_0","totchi_1", "totchi_2", "totchi_3", "totchi_4", "totchi_5", "totchi_6", "totchi_7", "totchi_9", "totchi_10", "region_1", "region_2", "region_3", "region_4", "region_5", "region_6", "region_7", "region_8", "region_9", "Constant"))
 
 ```
 
 
-## Question 13: Explain what the region fixed effects are cwhiontrolling for?
+## Question 13: Explain what the region fixed effects are controlling for?
 
 **Answer:** 
+The region fixed effects are controlling for variation
 
 
 
