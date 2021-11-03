@@ -74,6 +74,7 @@ library(lfe)
 
 Loading data
 ```{r}
+#Kiersten's wd
 setwd("c:/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stefanelli")
 basic.data <- read_dta("/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stefanelli/Data/basic.dta")
 View(basic.data)
@@ -161,6 +162,8 @@ as.factor(data.final$party)
 data.final$repub_i <- ifelse(data.final$party == '2', 1, 0)
 data.final$dem_i <- ifelse(data.final$party == '1', 1, 0)
 data.final$indep_i <- ifelse(data.final$party == '3', 1, 0)
+
+View(data.final)
 ```
 
 
@@ -198,6 +201,18 @@ stargazer(r1, r2, r3, type="text", header=FALSE, title="Comparison of Regression
 
 **Answer and Code:**
 
+Comparing the impact of Female vs Republican Congress Person:
+```{r}
+rtest1 <- felm(data=data.final, aauw ~ ngirls + totchi + female) 
+rtest2 <- felm(data=data.final, aauw ~ ngirls + totchi + repub_i)
+stargazer(r1, r2, r3, rtest1, rtest2, type="text", header=FALSE, title="Comparison of Regressions", 
+                     style="qje", 
+                     se = list(r3$rse, rtest1$rse, rtest2$rse),
+                     column.labels = c("Model #1", "Model #2", "Model #3", "Model Test #1", "Model Test #2"),
+                     covariate.labels = c("# of Daughters", "# of Children", "Female Congress Person", "Republican", "Intercept"))
+```
+
+We can see that the omission of number of children, republican and female significantly impact our B1 coefficient on the relationship between number of daughters and congress people's AAUW score. Model 1 has a negative coefficient which would lead us to assume that a one person increase in the number of a daughters a congress person has would lead to a -2.784 pt decrease in their score on voting on women's issues. This is not what we would expect. Once we introduce the other controls we see a positive B1 coefficient which aligns with our expected relationship After testing the absence of various control variables, we can see that the Republican control when omitted leads to the strongest upward bias on our B1, which makes it the most important to include in our model.
 
 
 
@@ -258,34 +273,49 @@ Hint: you will need to generate the dummy variables for the second equation or c
 # creating total children dummy variables
 library(fastDummies)
 as.factor(data.final$totchi)
-data.final <- fastDummies::dummy_cols(data.final, select_columns = "totchi")
-```
+levels(data.final$totchi)
+#We know there are NA levels for the total children variable, so we want to ignore them when creating the dummy vars. We couldn't get the fastDummies function to exclude the NA observation so we opted to use a slower method
+#Fast Dummies code: data.final <- fastDummies::dummy_cols(data.final, ignore_na=TRUE, select_columns = "totchi")
 
+#Slower option
+data.final$totchi_0 <- ifelse(data.final$totchi == '0', 1, 0)
+data.final$totchi_1 <- ifelse(data.final$totchi == '1', 1, 0)
+data.final$totchi_2 <- ifelse(data.final$totchi == '2', 1, 0)
+data.final$totchi_3 <- ifelse(data.final$totchi == '3', 1, 0)
+data.final$totchi_4 <- ifelse(data.final$totchi == '4', 1, 0)
+data.final$totchi_5 <- ifelse(data.final$totchi == '5', 1, 0)
+data.final$totchi_6 <- ifelse(data.final$totchi == '6', 1, 0)
+data.final$totchi_7 <- ifelse(data.final$totchi == '7', 1, 0)
+data.final$totchi_8 <- ifelse(data.final$totchi == '8', 1, 0)
+data.final$totchi_9 <- ifelse(data.final$totchi == '9', 1, 0)
+data.final$totchi_10 <- ifelse(data.final$totchi == '10', 1, 0)
+
+```
+**Code and Answer:**
 
 ```{r}
 #Model 1 listed for this question is R2 from previous question, will carry into this comparison instead
+#r2 <- felm(data=data.final, aauw ~ ngirls + totchi)
 
 #Model #7 (with dummies)
 r8 <- felm(data=data.final, aauw ~ ngirls + totchi_1 + totchi_2 + totchi_3 + totchi_4 + totchi_5 + totchi_6 + totchi_7 + totchi_9 + totchi_10)
+#excludes 0 total children dummy variable
 
 #Model #8 (year fixed effect)
+#adding year variable
 data.final_fe <- select(congress105_data, aauw, year, totchi, ngirls, party, female, white, srvlng, age, demvote, medinc, perf, perw, perhs, percol, perur, moredef, statabb, district, rgroup, region)
 View(data.final_fe)
-r9 <- felm(data=data.final_fe, aauw ~ ngirls|year)
+r9 <- felm(data=data.final_fe, aauw ~ ngirls|totchi)
 
 #Model summaries
 stargazer(r2, r8, r9, type="text", header=FALSE, title="Comparison of Regressions", 
                      style="qje", 
                      se = list(r2$rse, r7$rse, r8$rse),
                      column.labels = c("Model #2", "Model #7", "Model #8"),
-                     covariate.labels = c("# of Daughters", "# of Children", "1 Child", "2 Children", "3 Children", "4 Children", "5 Children", "6 Children", "7 Children", "8 Children", "9 Children", "10 Children", "Intercept"))
+                     covariate.labels = c("# of Daughters", "# of Children", "1 Child", "2 Children", "3 Children", "4 Children", "5 Children", "6 Children", "7 Children", "8 Children", "9 Children", "10 Children", "Constant"))
 
 
 ```
-
-
-**Code and Answer:**
-
 
 
 ## Question 12: Reproduce the results in column 2 of table 2 from Washington's paper. 
@@ -300,6 +330,7 @@ data.final$agesqrd <- (data.final$age)^2
 data.final$srvlngsqrd <- (data.final$srvlng)^2
 
 #Religion Dummies
+levels(data.final$rgroup)
 as.factor(data.final$rgroup)
 data.final <- fastDummies::dummy_cols(data.final, select_columns = "rgroup")
 
@@ -309,7 +340,7 @@ data.final <- rename(data.final, rel.none = rgroup_0, rel.prot = rgroup_1, rel.c
 
 #Region Dummies
 as.factor(data.final$region)
-data.final <- fastDummies::dummy_cols(data.final, select_columns = "region")
+data.final <- fastDummies::dummy_cols(data.final, select_columns = "region", ignore_na = TRUE)
 
 
 ```
@@ -318,9 +349,8 @@ Reproducing the following regression:
 
 AAUW = ngirls + female + white + republican + age + agesqrd + servicelength + servicelengthsqrd + noreligion + Catholic + OtherChristian + Otherrel + DemVoteShare 
 
-FOR TEAM:I get the right coefficients but added all the dummy vars for region (when we should exclude one), not sure what's going on
-
 ```{r}
+View(data.final)
 r10 <- felm(data=data.final, aauw ~ ngirls + female + white + repub_i + age + agesqrd + srvlng + srvlngsqrd + rel.none + rel.cath_orth + rel.othchris + rel.jew + demvote + totchi_0 + totchi_1 + totchi_2 + totchi_3 + totchi_4 + totchi_5 + totchi_6 + totchi_7 + totchi_9 + totchi_10 + region_1 + region_2 + region_3 + region_4 + region_5 + region_6 + region_7 + region_8 + region_9)
 
 stargazer(r10, type="text", header=FALSE, title="Impact of Female Children on Legislator Voting on Women's Issues", 
@@ -334,8 +364,7 @@ stargazer(r10, type="text", header=FALSE, title="Impact of Female Children on Le
 ## Question 13: Explain what the region fixed effects are controlling for?
 
 **Answer:** 
-The region fixed effects are controlling for variation
-
+The region fixed effects are controlling for any unobservable variation within each region which does not change over time
 
 
 ## Question 14: Reload the data and this time we will keep observations from all of the congresses. Generate a variable that creates a unique identifier for region by year. Estimate the following models and present your results in a table.
@@ -353,6 +382,63 @@ $$
 **$\gamma_i$ is a fixed effect for the total number of children, $\phi_i$ is a region fixed effect, $\eta_i$ is a year (congress session) fixed effect and $\theta_i$ is a region by year fixed effect and $\rho_i$ is a total children by region by year fixed effect. Explain what the differences between these four different estimation. Is there a downside to a specification like the fourth specification? **
 
 **Code and Answer:**
+
+Creating variables
+```{r}
+library(fastDummies)
+
+#Total Children Dummies
+as.factor(basic.data$totchi)
+basic.data <- fastDummies::dummy_cols(basic.data, select_columns = "totchi")
+
+#Region Dummies
+as.factor(basic.data$region)
+basic.data <- fastDummies::dummy_cols(basic.data, select_columns = "region")
+
+#Year Dummies
+as.factor(basic.data$year)
+basic.data <- fastDummies::dummy_cols(basic.data, select_columns = "year")
+
+#Region by Year Dummies
+data.final$repub_i <- ifelse(data.final$party == '2', 1, 0)
+data.final$dem_i <- ifelse(data.final$party == '1', 1, 0)
+data.final$indep_i <- ifelse(data.final$party == '3', 1, 0)
+```
+
+Installing plm package to work with panel data
+```{r}
+install.packages("plm")
+library(plm)
+```
+
+Running the models
+```{r}
+#**Model 1 with total children & region fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\gamma_i+\phi_i+\epsilon_i\\ 
+r11 <- felm(data=basic.data, aauw ~ ngirls + factor(totchi) + factor(region))
+
+#**Model 2 with total children, region, and year fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\gamma_i+\phi_i+\eta_i+\epsilon_i\\ 
+r12 <- felm(data=basic.data, aauw ~ ngirls + factor(totchi) + factor(region) + factor(year))
+
+#**Model 3 with total children & region by year fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\gamma_i+\theta_i+\epsilon_i\\ 
+#using plm model which allows for easier "within estimators" when using panel data
+r13 <- plm(data=basic.data, aauw ~ ngirls + factor(totchi) + factor(region), index = "year", model="within")
+
+#**Model 4 with total children by region by year fixed effects** aauw_i&=\beta_0+\beta_1ngirls_i+\rho_i+\epsilon_i\\
+r14 <- plm(data=basic.data, aauw ~ ngirls + factor(totchi), index = c("region","year"), model="within", effect="twoways")
+
+#Presenting the models
+stargazer(r11, r12, r13, r14, type="text", header=FALSE, title="Impact of Female Children on Legislator Voting on Women's Issues", 
+                     style="qje")
+
+```
+
+Question: Explain what the differences between these four different estimation. Is there a downside to a specification like the fourth specification? **
+
+These four models control for variation within different control variables like region, time, and total children and their impact on our experimental (presumably random) variable "number of girls". We can see that region and year fixed effects upwardly bias the number of girls variable when omitted (models 1 and 4 above). Models 2 and 3 represent the same variables: model 2 captures year and region fixed effects separately while model 3 captures region by year fixed effects. The downside to the specification in model 4 is that it does not account for time fixed effects. It also does not capture any unobservable variation within each region, instead it only captures the unobservable variation within having 
+
+The region fixed effects are controlling for any unobservable variation within each region which does not change over time
+
+```
 
 
 
