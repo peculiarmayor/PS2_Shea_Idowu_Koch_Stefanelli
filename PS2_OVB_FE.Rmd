@@ -78,6 +78,8 @@ setwd("c:/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stef
 basic.data <- read_dta("/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stefanelli/Data/basic.dta")
 View(basic.data)
 summary(basic.data)
+
+basic.data<-as.data.frame(basic.data)
 ```
 
 
