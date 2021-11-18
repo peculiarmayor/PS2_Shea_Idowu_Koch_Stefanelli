@@ -2,9 +2,9 @@
 title: 'Problem Set 2: Omitted Variable Bias and Fixed Effects'
 author: "Claire Duquennois"
 output:
-  html_document:
-    number_sections: yes
-  pdf_document: default
+  html_document: 
+    number_sections: true
+
 ---
 
 ```{r setup, include=FALSE}
@@ -17,6 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 **Group Member 3: Milan Stefanelli**
 
 **Group Member 4: Kiersten Kochanowski**
+
+<span style="color: green;">Neil's comments in green</span>
+
 
 # Empirical Analysis using Data from Washington (2008, AER)
 
@@ -48,10 +51,10 @@ getwd()
 
 ```{r packages}
 
-install.packages('haven',repos = "http://cran.us.r-project.org")
-install.packages("dplyr",repos = "http://cran.us.r-project.org")
-install.packages("stargazer",repos = "http://cran.us.r-project.org")
-install.packages("lfe",repos = "http://cran.us.r-project.org")
+#install.packages('haven',repos = "http://cran.us.r-project.org")
+#install.packages("dplyr",repos = "http://cran.us.r-project.org")
+#install.packages("stargazer",repos = "http://cran.us.r-project.org")
+#install.packages("lfe",repos = "http://cran.us.r-project.org")
 
 ```
 Hint: Once you have run these once, on your machine, you may want to comment them out with a # so that your code runs faster.
@@ -75,9 +78,9 @@ library(lfe)
 Loading data
 ```{r}
 #Kiersten's wd
-setwd("c:/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stefanelli")
-basic.data <- read_dta("/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stefanelli/Data/basic.dta")
-View(basic.data)
+#setwd("c:/Users/Kiersten/Documents/School/S2_Causal_Inf/PS2_Shea_Idowu_Koch_Stefanelli")
+basic.data <- read_dta("../data/basic.dta")
+#View(basic.data)
 summary(basic.data)
 
 basic.data<-as.data.frame(basic.data)
@@ -92,7 +95,7 @@ basic.data<-as.data.frame(basic.data)
 
 ```{r}
 congress105_data <- filter(basic.data, congress == "105")
-View(congress105_data)
+#View(congress105_data)
 ```
 
 
@@ -127,7 +130,7 @@ View(congress105_data)
 
 ```{r}
 data.final <- select(congress105_data, aauw, totchi, ngirls, party, female, white, srvlng, age, demvote, medinc, perf, perw, perhs, percol, perur, moredef, statabb, district, rgroup, region)
-View(data.final)
+#View(data.final)
 ```
 
 
@@ -149,7 +152,7 @@ Hints: If you want RMarkdown to display your outputted table, include the code `
 
 ```{r results='asis'}
 library(stargazer)
-stargazer(data.final, summary = TRUE, results="html")
+stargazer(data.final, summary = TRUE, type="html")
 ```
 
 
@@ -165,9 +168,10 @@ data.final$repub_i <- ifelse(data.final$party == '2', 1, 0)
 data.final$dem_i <- ifelse(data.final$party == '1', 1, 0)
 data.final$indep_i <- ifelse(data.final$party == '3', 1, 0)
 
-View(data.final)
+#View(data.final)
 ```
 
+<span style="color: green;">Should be "type=html" rather than results=html. There was a mistake in the question.</span>
 
 # Run Estimations
 
@@ -205,6 +209,8 @@ stargazer(r1, r2, r3, type="text", header=FALSE, title="Comparison of Regression
 
 We can see that the omission of number of children, republican and female significantly impact our B1 coefficient on the relationship between number of daughters and congress people's AAUW score. Model 1 has a negative coefficient which would lead us to assume that a one person increase in the number of a daughters a congress person has would lead to a -2.784 pt decrease in their score on voting on women's issues. This is not what we would expect. Once we introduce the other controls we see a positive B1 coefficient which aligns with our expected relationship After testing the absence of various control variables, we can see that the Republican control when omitted leads to the strongest upward bias on our B1, which makes it the most important to include in our model.
 
+<span style="color: green;">Total children is probably the most important omitted variable.</span>
+
 
 Comparing the impact of Female vs Republican Congress Person:
 ```{r Question 8, include = TRUE, results="asis"}
@@ -225,6 +231,7 @@ stargazer(r1, r2, r3, rtest1, rtest2, type="text", header=FALSE, title="Comparis
 **Answer:**
 The number of daughters is possibly exogenous; there may be  factors influencing the number of daughters. The underlying assumption is that biologically, gender is random and thus causal estimates can be determined. 
 
+<span style="color: green;">Good. Note that this would be violated if couples follow fertility stopping rules. For example, if couples  stop having children when they have one girl.</span>
 
 
 ## Question 10: It is possible that the effects of having daughters might be different for female and male legislators. Estimate four different models to think about this question: the equivalent of model 3 separately on men and women, model 3 with a single interaction term added, and model 3 with three interaction terms added. Present your results in a table. Is there evidence that the effect of a daughter differs for male and female legislators? Of the four models you estimated, which are equivalent, which are different, and why? 
@@ -259,6 +266,9 @@ stargazer(r4_fem, r5_mal, r6_1int, r7_3int, type="text", header=FALSE, title="Co
                      covariate.labels = c("# of Daughters", "# of Children", "Republican", "Female Congress Person", "# Girls*Female Congress Person", "# Girls*# of Children", "# of Girls*Republican"))
 
 ```
+
+<span style="color: green;">Formatting got wonky because of the "#" in the variable labels. The last column should have interactions with the female dummy instead of number of girls variable.</span>
+
 
 # Fixed Effects:
 
@@ -322,6 +332,9 @@ stargazer(r2, r8, r9, type="text", header=FALSE, title="Comparison of Regression
 ```
 
 Introducing number of children as a fixed effect impacts the B1 coefficient similarly to the number of children as a control variable. 
+
+<span style="color: green;">Column 2 should be equivelant to column 3. You omitted the dummmy for 8 children. You can also use "factor(totchi)" to automatically generae all the dummy variables.</span>
+
 
 
 ## Question 12: Reproduce the results in column 2 of table 2 from Washington's paper. 
@@ -443,12 +456,14 @@ stargazer(r11, r12, r13, r14, type="text", header=FALSE, title="Impact of Female
 
 ```
 
+<span style="color: green;">Regressions r13 and r14 not the models asked for.</span>
 
 
 Question: Explain what the differences between these four different estimation. Is there a downside to a specification like the fourth specification? **
 
 These four models control for variation within different control variables like region, time, and total children and their impact on our experimental (presumably random) variable "number of girls". We can see that region and year fixed effects upwardly bias the number of girls variable when omitted (models 1 and 4 above). Models 2 and 3 represent the same variables: model 2 captures year and region fixed effects separately while model 3 captures region by year fixed effects. The downside to the specification in model 4 is that it does not account for time fixed effects. It also does not capture any unobservable variation within each region, instead it only captures the unobservable variation within number of children, within a region in a given year which is likely not going to change very much and therefore hurts our random variable (B1).
 
+<span style="color: green;">Model 4 does include time fixed effects. The downside is it is estimated off of a small number of observations.</span>
 
 ## Question 15: In her paper, Washington chooses not to pool the data for all four congresses and instead estimates her main specification on each year separately. Why do you think she makes this choice? 
 
@@ -526,6 +541,8 @@ When we account for changes to an individual congressmen's total number of child
 **Answer:** 
 Observing changes for each congress person removes conditionality and may lead to exogenous variation
 
+<span style="color: green;">I'm not following.</span>
+
 
 ## Question 19: Using data from all four congresses, estimate the same specification as that used in column 2 of table 2 with the addition of year and individual fixed effects and report your results. Why aren't you able to estimate a coefficient for certain covariates?
 
@@ -556,16 +573,21 @@ stargazer(r16, type="text", header=FALSE, title="Regression 16",
 ```
 **Answer:** R cannot calculate coefficient estimates because the individual fixed effects remove variation from the model. 
 
+<span style="color: green;">Be more specific here.</span>
 
 ## Question 20: Which fixed effects from the original specification are now redundant?
 
 **Answer:**
 Region and year fixed effects are redundant when adding name fixed effects
 
+<span style="color: green;">Year fixed effects are not redundant. Fixed effects that are constant within a representative are now redundant.</span>
+
 ## Question 21: Can you estimate a coefficient for $Repub$? What does this imply?
 
 **Answer:**
 Yes ( -3.034). This means that political party is not heavily related to names
+
+<span style="color: green;">Implies that at least one representative switched parties during this period. Probably not very many though, so we should be careful about interpreting this coefficient.</span>
 
 # Submission instructions:
 
